@@ -53,7 +53,7 @@ class Packet:
 class Sender:
     _BUF_SIZE = 5000
 
-    def __init__(self, ll_endpoint, use_slow_start=True, use_fast_retransmit=False, threshold= 10):
+    def __init__(self, ll_endpoint, use_slow_start=True, use_fast_retransmit=False, threshold= 100):
         self._ll_endpoint = ll_endpoint
         self._rtt = 2 * (ll_endpoint.transmit_delay + ll_endpoint.propagation_delay)
 
@@ -143,7 +143,7 @@ class Sender:
             slot = seq_num % Sender._BUF_SIZE
             self._buf[slot]["send_time"] = 0 
         self._last_seq_sent = self._last_ack_recv
-
+ 
         # Sent next unACK'd packet
         self._transmit(self._last_ack_recv + 1)
 
