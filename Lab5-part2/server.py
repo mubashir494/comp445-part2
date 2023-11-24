@@ -22,8 +22,6 @@ def main():
 
     logging.basicConfig(level=logging.INFO, 
             format='%(levelname)s: %(message)s')
-    logging.basicConfig(level=logging.DEBUG, 
-            format='%(levelname)s: %(message)s')
 
     ll_endpoint = lower_layer.LowerLayerEndpoint(local_address=(settings.hostname, settings.port),
                 queue_size=settings.queue_size, bandwidth=settings.bandwidth, propagation_delay=settings.delay)

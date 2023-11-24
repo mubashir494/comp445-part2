@@ -171,7 +171,7 @@ class Sender:
                 if (send_time != None and send_time != 0):
                     elapsed = recv_time - send_time
                     self._rtt = self._rtt * 0.9 + elapsed.total_seconds() * 0.1
-                    logging.debug("Updated RTT estimate: {}".format(self._rtt))
+                    logging.info("Updated RTT estimate: {}".format(self._rtt))
 
                 # Free slot
                 self._buf[slot] = None
@@ -189,7 +189,7 @@ class Sender:
             # Update congestion window
             # If Slow Start True
             if(self._use_slow_start == True):
-                logging.debug("SLOW START")
+                logging.info("SLOW START")
                 # If greater or equal to threshold
                 if(self._cwnd >= self.threshold):
                     # Increase it linearly
@@ -200,11 +200,11 @@ class Sender:
                     # Double the window everytime
                     
                     self._cwnd = self._cwnd  + 1
-                    logging.debug("CWND: {}".format(self._cwnd))
+                    logging.info("CWND: {}".format(self._cwnd))
                     self._plotter.update_cwnd(self._cwnd)  
             else :      
                 self._cwnd = self._cwnd + 1 / self._cwnd
-                logging.debug("CWND: {}".format(self._cwnd))
+                logging.info("CWND: {}".format(self._cwnd))
                 self._plotter.update_cwnd(self._cwnd)
 
             # Send next packet while packets are available and congestion window allows
