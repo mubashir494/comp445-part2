@@ -20,6 +20,8 @@ def main():
             action='store', type=float, default=1.0, help='Delay (secs)')
     settings = arg_parser.parse_args()
 
+    logging.basicConfig(level=logging.INFO, 
+            format='%(levelname)s: %(message)s')
     logging.basicConfig(level=logging.DEBUG, 
             format='%(levelname)s: %(message)s')
 
