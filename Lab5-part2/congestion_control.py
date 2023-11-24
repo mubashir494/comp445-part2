@@ -189,7 +189,7 @@ class Sender:
             # Update congestion window
             # If Slow Start True
             if(self._use_slow_start == True):
-                
+                logging.debug("SLOW START")
                 # If greater or equal to threshold
                 if(self._cwnd >= self.threshold):
                     # Increase it linearly
