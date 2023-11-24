@@ -53,7 +53,7 @@ class Packet:
 class Sender:
     _BUF_SIZE = 5000
 
-    def __init__(self, ll_endpoint, use_slow_start=False, use_fast_retransmit=False, threshold= 10):
+    def __init__(self, ll_endpoint, use_slow_start=True, use_fast_retransmit=False, threshold= 10):
         self._ll_endpoint = ll_endpoint
         self._rtt = 2 * (ll_endpoint.transmit_delay + ll_endpoint.propagation_delay)
 
@@ -197,7 +197,7 @@ class Sender:
                     self._plotter.update_cwnd(self._cwnd)
                 else:      
                     # Double the window everytime
-                    self._cwnd = self._cwnd * 2
+                    self._cwnd = self._cwnd  + 1
                     logging.debug("CWND: {}".format(self._cwnd))
                     self._plotter.update_cwnd(self._cwnd)  
             else :      
