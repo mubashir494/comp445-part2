@@ -53,7 +53,7 @@ class Packet:
 class Sender:
     _BUF_SIZE = 5000
 
-    def __init__(self, ll_endpoint, use_slow_start=False, use_fast_retransmit=False):
+    def __init__(self, ll_endpoint, use_slow_start=False, use_fast_retransmit=False, threshold= 10):
         self._ll_endpoint = ll_endpoint
         self._rtt = 2 * (ll_endpoint.transmit_delay + ll_endpoint.propagation_delay)
 
@@ -83,6 +83,9 @@ class Sender:
         self._buf[0] = {"packet" : packet, "send_time" : None}
         self._timer = None
         self._transmit(0)
+        
+        # Congestion Threshold
+        self.threshold = threshold
 
     def _transmit(self, seq_num):
         slot = seq_num % Sender._BUF_SIZE
@@ -184,9 +187,23 @@ class Sender:
                 self._timer = None
 
             # Update congestion window
-            self._cwnd = self._cwnd + 1 / self._cwnd
-            logging.debug("CWND: {}".format(self._cwnd))
-            self._plotter.update_cwnd(self._cwnd)
+            # If Slow Start True
+            if(self._use_slow_start == True):
+                # If greater or equal to threshold
+                if(self._cwnd >= self.threshold):
+                    # Increase it linearly
+                    self._cwnd = self._cwnd + 1 / self._cwnd
+                    logging.debug("CWND: {}".format(self._cwnd))
+                    self._plotter.update_cwnd(self._cwnd)
+                else:      
+                    # Double the window everytime
+                    self._cwnd = self._cwnd * 2
+                    logging.debug("CWND: {}".format(self._cwnd))
+                    self._plotter.update_cwnd(self._cwnd)  
+            else :      
+                self._cwnd = self._cwnd + 1 / self._cwnd
+                logging.debug("CWND: {}".format(self._cwnd))
+                self._plotter.update_cwnd(self._cwnd)
 
             # Send next packet while packets are available and congestion window allows
             while  ((self._last_seq_sent < self._last_seq_written) and
@@ -194,6 +211,7 @@ class Sender:
                 self._transmit(self._last_seq_sent + 1)
 
         self._ll_endpoint.shutdown()
+
 
 class Receiver:
     _BUF_SIZE = 1000
