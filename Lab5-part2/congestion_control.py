@@ -189,6 +189,7 @@ class Sender:
             # Update congestion window
             # If Slow Start True
             if(self._use_slow_start == True):
+                
                 # If greater or equal to threshold
                 if(self._cwnd >= self.threshold):
                     # Increase it linearly
@@ -197,6 +198,7 @@ class Sender:
                     self._plotter.update_cwnd(self._cwnd)
                 else:      
                     # Double the window everytime
+                    
                     self._cwnd = self._cwnd  + 1
                     logging.debug("CWND: {}".format(self._cwnd))
                     self._plotter.update_cwnd(self._cwnd)  

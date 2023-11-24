@@ -20,7 +20,7 @@ def main():
             action='store', type=float, default=1.0, help='Delay (secs)')
     settings = arg_parser.parse_args()
 
-    logging.basicConfig(level=logging.INFO, 
+    logging.basicConfig(level=logging.DEBUG, 
             format='%(levelname)s: %(message)s')
 
     ll_endpoint = lower_layer.LowerLayerEndpoint(local_address=(settings.hostname, settings.port),
