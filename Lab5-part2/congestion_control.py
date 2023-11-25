@@ -198,7 +198,9 @@ class Sender:
                 self._timer = None
 
             # Add it To Duplicate Buffer If fast transmit is enabled
+            # When Fast Transmit IS ENABLED
             if self._use_fast_retransmit == True:
+                duplicateAckFound = False
                 self.duplicate.append(packet.seq_num)
                 # IF the Duplicate Buffer Array length is Greater then 3
                 if len(self.duplicate) >= 3:
@@ -213,7 +215,7 @@ class Sender:
                     # If they are same then do the retransmission
                     if retransmission == True:
                         logging.info("3 Duplicate ACK found "+str(packet.seq_num))
-                        
+                        duplicateAckFound = True
                         # Retransmit
                         self._transmit(packet.seq_num + 1)
                         # Update the Congestion Window
@@ -225,9 +227,21 @@ class Sender:
                             self.duplicate = []
                         else:
                             self.duplicate = self.duplicate[0:len(self.duplicate) - 3]
-                           
-            
-            if(self._use_slow_start == True):
+                if(duplicateAckFound == False):
+                    if(self._cwnd >= self.threshold):
+                        # Increase it linearly
+                        self._cwnd = self._cwnd + 1 / self._cwnd
+                        logging.debug("CWND: {}".format(self._cwnd))
+                        self._plotter.update_cwnd(self._cwnd)
+                    else:      
+                        # Double the window everytime        
+                        self._cwnd = self._cwnd  + 1
+                        logging.info("CWND: {}".format(self._cwnd))
+                        self._plotter.update_cwnd(self._cwnd)  
+                    
+                    
+            # WHEN SLOW START IS ENABLED
+            elif (self._use_slow_start == True):
                 logging.info("SLOW START")
                 # If greater or equal to threshold
                 if(self._cwnd >= self.threshold):
@@ -240,8 +254,8 @@ class Sender:
                     self._cwnd = self._cwnd  + 1
                     logging.info("CWND: {}".format(self._cwnd))
                     self._plotter.update_cwnd(self._cwnd)  
+            # WHEN NONE IS ENABLED
             else :   
-                   
                 self._cwnd = self._cwnd + 1 / self._cwnd
                 logging.info("CWND: {}".format(self._cwnd))
                 self._plotter.update_cwnd(self._cwnd)
