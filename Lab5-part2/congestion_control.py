@@ -53,7 +53,7 @@ class Packet:
 class Sender:
     _BUF_SIZE = 5000
 
-    def __init__(self, ll_endpoint, use_slow_start=True, use_fast_retransmit=False, threshold= 10):
+    def __init__(self, ll_endpoint, use_slow_start=True, use_fast_retransmit=False, threshold= 100):
         self._ll_endpoint = ll_endpoint
         self._rtt = 2 * (ll_endpoint.transmit_delay + ll_endpoint.propagation_delay)
 
