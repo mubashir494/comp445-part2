@@ -53,7 +53,7 @@ class Packet:
 class Sender:
     _BUF_SIZE = 5000
 
-    def __init__(self, ll_endpoint, use_slow_start=True, use_fast_retransmit=False, threshold= 200):
+    def __init__(self, ll_endpoint, use_slow_start=True, use_fast_retransmit=False, threshold= 50):
         self._ll_endpoint = ll_endpoint
         self._rtt = 2 * (ll_endpoint.transmit_delay + ll_endpoint.propagation_delay)
 
@@ -200,6 +200,7 @@ class Sender:
             # Add it To Duplicate Buffer If fast transmit is enabled
             # When Fast Transmit IS ENABLED
             if self._use_fast_retransmit == True:
+                logging.info("Fast Transmit Enabled "+str(self._use_fast_retransmit))
                 duplicateAckFound = False
                 self.duplicate.append(packet.seq_num)
                 # IF the Duplicate Buffer Array length is Greater then 3
