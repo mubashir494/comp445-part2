@@ -133,10 +133,18 @@ class Sender:
             self._transmit(packet.seq_num)
         
     def _timeout(self):
-        # Update congestion window
-        self._cwnd = max(1, self._cwnd/2)
-        logging.debug("CWND: {}".format(self._cwnd))
-        self._plotter.update_cwnd(self._cwnd)
+        # If slow start is enabled 
+        if (self._use_slow_start == True):
+            # Half the threshold
+            self.threshold = max(1, self._cwnd/2)
+            self._cwnd = 1
+            logging.info("CWND: {}".format(self._cwnd))
+            self._plotter.update_cwnd(self._cwnd)
+        else: 
+            # Update congestion window
+            self._cwnd = max(1, self._cwnd/2)
+            logging.debug("CWND: {}".format(self._cwnd))
+            self._plotter.update_cwnd(self._cwnd)
 
         # Assume no packets remain in flight
         for seq_num in range(self._last_ack_recv+1, self._last_seq_sent+1):
