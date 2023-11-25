@@ -86,6 +86,9 @@ class Sender:
         
         # Congestion Threshold
         self.threshold = threshold
+        
+        # Array which hold Duplicate ACKs
+        self.duplicate = []
 
     def _transmit(self, seq_num):
         slot = seq_num % Sender._BUF_SIZE
@@ -194,8 +197,36 @@ class Sender:
                 self._timer.cancel()
                 self._timer = None
 
-            # Update congestion window
-            # If Slow Start True
+            # Add it To Duplicate Buffer If fast transmit is enabled
+            if self._use_fast_retransmit == True:
+                self.duplicate.append(packet.seq_num)
+                # IF the Duplicate Buffer Array length is Greater then 3
+                if len(self.duplicate) >= 3:
+                    
+                    last_three_elements = self.duplicate[-3:]
+                    retransmission = True
+                    
+                    # Check for Last three Elements
+                    for i in last_three_elements:
+                        if i != packet.seq_num:
+                            retransmission = False
+                    # If they are same then do the retransmission
+                    if retransmission == True:
+                        logging.info("3 Duplicate ACK found "+str(packet.seq_num))
+                        
+                        # Retransmit
+                        self._transmit(packet.seq_num + 1)
+                        # Update the Congestion Window
+                        self._cwnd = max(1,self._cwnd/2)
+                        # Update the Threshold
+                        self.threshold = max(1,self._cwnd/2)
+                        # Update the Duplicate Array
+                        if(len(self.duplicate == 3)):
+                            self.duplicate = []
+                        else:
+                            self.duplicate = self.duplicate[0:len(self.duplicate) - 3]
+                           
+            
             if(self._use_slow_start == True):
                 logging.info("SLOW START")
                 # If greater or equal to threshold
@@ -205,12 +236,12 @@ class Sender:
                     logging.debug("CWND: {}".format(self._cwnd))
                     self._plotter.update_cwnd(self._cwnd)
                 else:      
-                    # Double the window everytime
-                    
+                    # Double the window everytime        
                     self._cwnd = self._cwnd  + 1
                     logging.info("CWND: {}".format(self._cwnd))
                     self._plotter.update_cwnd(self._cwnd)  
-            else :      
+            else :   
+                   
                 self._cwnd = self._cwnd + 1 / self._cwnd
                 logging.info("CWND: {}".format(self._cwnd))
                 self._plotter.update_cwnd(self._cwnd)
